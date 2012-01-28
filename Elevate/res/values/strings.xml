@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Elevate</string>
+    <string name="about">&lt;h1&gt;Help Elevate VERSION&lt;/h1&gt;
+&lt;p&gt;
+You see a publishing house with many floors. Each floor has its own color. New visitors arrive in the entrance floor at every round. The visitors color marker shows the destination floor.
+&lt;/p&gt;
+&lt;p&gt;
+Your task is to bring the visitors to the destination floors. There are to lifts available with a capacity of eight each. The visitors leave the elevator only on the correct floor. Each color mark under each is a placeholder for one visitor in the lift.
+&lt;/p&gt;
+&lt;p&gt;
+You control the elevators simply by a click on the required level. You should pick up visitors, impatient swing with the arms, as soon as possible. The customers, which no longer black, but striped look must be pick up the next turn. If no, the game is over.
+&lt;/p&gt;
+&lt;p&gt;
+At the end you see your score and the Hiscores all other players.
+&lt;/p&gt;
+&lt;p&gt;
+Elevate is the android reincarnation of the old BerlinOnline cult online game from the late 1990s. It uses the original graphics and gameplay. The hiscore board is shared with the online version. This you can currently play the original at &lt;a href="http://www.berlinonline.de/elevate/"&gt;berlinonline.de/elevate&lt;/a&gt; and &lt;a href="http://www.berlin.de/elevate/"&gt;berlin.de/elevate&lt;/a&gt;.
+&lt;/p&gt;</string>
+    <string name="Button_OK">OK</string>
+    <string name="score">Score: </string>
+    <string name="new_customers">new visitors:</string>
+    <string name="level">Level: </string>
+    <string name="hiscoreJsonUrl">https://www.berlinonline.de/elevate/_bin/highscore.php?format=json</string>
+    <string name="highscore">Elevate Hiscores</string>
+    <string name="record">Current Record</string>
+    <string name="nick_for_hiscore">Nickname for Hiscore</string>
+    <string name="post">Submit</string>
+    <string name="cancel">Cancel</string>
+    <string name="hiscoreApiKey">bXUau/siyIDNu/iQ3JjOR5SMdvs=</string>
+</resources>

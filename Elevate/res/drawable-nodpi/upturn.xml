@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animation-list xmlns:android="http://schemas.android.com/apk/res/android"
+    android:oneshot="false">
+    <item android:drawable="@drawable/upturn01" android:duration="100" />
+    <item android:drawable="@drawable/upturn02" android:duration="100" />
+    <item android:drawable="@drawable/upturn03" android:duration="100" />
+    <item android:drawable="@drawable/upturn04" android:duration="100" />
+    <item android:drawable="@drawable/upturn05" android:duration="100" />
+    <item android:drawable="@drawable/upturn06" android:duration="100" />
+    <item android:drawable="@drawable/upturn07" android:duration="100" />
+    <item android:drawable="@drawable/upturn08" android:duration="100" />
+</animation-list>

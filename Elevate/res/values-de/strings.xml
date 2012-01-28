@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="about">&lt;h1&gt;Hilfe zu Elevate VERSION&lt;/h1&gt;
+&lt;p&gt;
+Du siehst ein Verlagshaus mit vielen Etagen. Jede Etage hat ihre eigene Farbe. Durch die beiden Eingänge kommen &lt;B&gt;pro Spielzug neue Besucher&lt;/B&gt;. An ihrer Farbe erkennst Du, in welche Etage sie wollen.
+&lt;/p&gt;
+&lt;p&gt;
+Deine Aufgabe ist es, die Besucher an Ihr Ziel zu bringen. Dazu stehen Dir zwei Fahrstühle zur Verfügung, mit deren Hilfe Du &lt;B&gt;jeweils bis zu acht Figuren befördern&lt;/B&gt; kannst. Die Besucher steigen natürlich immer erst dann aus dem Fahrstuhl, wenn Du sie auf der richtigen Etage absetzt. An den Markierungen unter jedem Fahrstuhl erkennst Du, welche Figuren sich noch im Fahrstuhl befinden. 
+&lt;/p&gt;
+&lt;p&gt;
+Die Fahrstühle steuerst Du einfach durch Klicken auf die jeweilige Etage. &lt;B&gt;Besucher, die nicht mehr laufen,&lt;/B&gt; sondern ungeduldig mit den Armen schwenken, solltest Du so bald wie möglich abholen. Die Figuren, die nicht mehr schwarz, sondern gestreift aussehen, reißt der &quot;Geduldsfaden&quot;, &lt;B&gt;wenn Du sie nicht beim nächsten Spielzug abholst&lt;/B&gt;. In diesem Fall wäre das Spiel nämlich beendet.
+&lt;/p&gt;
+&lt;p&gt;
+Am Ende siehtst Du Deinen Punktestand und die Hiscores aller anderen Mitspieler.
+&lt;/p&gt;
+&lt;p&gt;
+Elevate ist die Reinkarnation des seit 1998 bei BerlinOnline existierende Online-Spiel. Dieses kannst du derzeit unter &lt;a href="http://www.berlinonline.de/elevate/"&gt;berlinonline.de/elevate&lt;/a&gt; und unter &lt;a href="http://www.berlin.de/elevate"&gt;berlin.de/elevate&lt;/a&gt; spielen.
+&lt;/p&gt;</string>
+    <string name="score">Punkte: </string>
+    <string name="new_customers">neue Kunden:</string>
+    <string name="record">Bisheriger Record</string>
+    <string name="nick_for_hiscore">Nickname für Hiscore</string>
+    <string name="post">Eintragen</string>
+    <string name="cancel">Abbrechen</string>
+</resources>
