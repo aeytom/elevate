@@ -6,7 +6,6 @@ package de.taytec.elevate;
 import java.util.ArrayList;
 import java.util.ListIterator;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
@@ -16,8 +15,6 @@ import android.graphics.Rect;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
-import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.View;
 
 /**
@@ -150,7 +147,7 @@ public class Floor extends View {
 			setFloorSurface(a.getInt(R.styleable.Floor_surface, 4));
 			labelGraphic = getResources().getDrawable(a.getResourceId(R.styleable.Floor_src, R.drawable.lfloorentry));
 //			Log.d("labelGraphic", "w="+labelGraphic.getIntrinsicWidth()+" h="+labelGraphic.getIntrinsicHeight());
-			labelGraphic.setBounds(0, 0, Elevate.getScaledWidth(labelGraphic), Elevate.getScaledHeight(labelGraphic));
+			labelGraphic.setBounds(0, 0, ElevateActivity.getScaledWidth(labelGraphic), ElevateActivity.getScaledHeight(labelGraphic));
 			a.recycle();
 		}
 		setClickable(true);
@@ -164,19 +161,19 @@ public class Floor extends View {
 			drwWorker = (AnimationDrawable) getResources().getDrawable(isFloorLeft() ? R.drawable.rwalk : R.drawable.lwalk);
 			drwWait = (AnimationDrawable) getResources().getDrawable(R.drawable.wait);
 			drwWait.setBounds(
-					0, Elevate.getScaledHeight(labelGraphic), 
-					Elevate.getScaledWidth(drwWait), Elevate.getScaledHeight(labelGraphic) + Elevate.getScaledHeight(drwWait));
+					0, ElevateActivity.getScaledHeight(labelGraphic), 
+					ElevateActivity.getScaledWidth(drwWait), ElevateActivity.getScaledHeight(labelGraphic) + ElevateActivity.getScaledHeight(drwWait));
 			drwUpturn = (AnimationDrawable) getResources().getDrawable(R.drawable.upturn);
 			drwUpturn.setBounds(
-					0, Elevate.getScaledHeight(labelGraphic), 
-					Elevate.getScaledWidth(drwUpturn), Elevate.getScaledHeight(labelGraphic) + Elevate.getScaledHeight(drwUpturn));			
+					0, ElevateActivity.getScaledHeight(labelGraphic), 
+					ElevateActivity.getScaledWidth(drwUpturn), ElevateActivity.getScaledHeight(labelGraphic) + ElevateActivity.getScaledHeight(drwUpturn));			
 		}
 		else {
 			drwWorker = (AnimationDrawable) getResources().getDrawable(isFloorLeft() ? R.drawable.lwalk : R.drawable.rwalk);
 		}
 		drwWorker.setBounds(
-				0, Elevate.getScaledHeight(labelGraphic), 
-				Elevate.getScaledWidth(drwWorker), Elevate.getScaledHeight(labelGraphic) + Elevate.getScaledHeight(drwWorker));
+				0, ElevateActivity.getScaledHeight(labelGraphic), 
+				ElevateActivity.getScaledWidth(drwWorker), ElevateActivity.getScaledHeight(labelGraphic) + ElevateActivity.getScaledHeight(drwWorker));
 		posWorker = drwWorker.copyBounds();
 		
 		if (null == animator) {
@@ -227,10 +224,10 @@ public class Floor extends View {
 		drwWorker.copyBounds(posWorker);
 		int offset;
 		if (isFloorLeft()) {
-			posWorker.offsetTo(width - Elevate.getScaledWidth(drwWorker), posWorker.top);
-			offset = 0 - Elevate.getScaledWidth(drwWorker);
+			posWorker.offsetTo(width - ElevateActivity.getScaledWidth(drwWorker), posWorker.top);
+			offset = 0 - ElevateActivity.getScaledWidth(drwWorker);
 		} else {
-			offset = Elevate.getScaledWidth(drwWorker);
+			offset = ElevateActivity.getScaledWidth(drwWorker);
 		}
 		if (isEntry()) {
 			ListIterator<Customer> i = waiting.listIterator();
@@ -247,15 +244,15 @@ public class Floor extends View {
 					walker = drwWorker.getFrame(animationCounter % drwWorker.getNumberOfFrames());
 
 				}
-				posWorker.right = posWorker.left + Elevate.getScaledWidth(walker);
+				posWorker.right = posWorker.left + ElevateActivity.getScaledWidth(walker);
 				walker.setBounds(posWorker);
 				walker.setAlpha(255);
 				walker.draw(canvas);
 				
 				Drawable mini = customer.getDrawable();
-				int miniLeft = posWorker.left + (Elevate.getScaledWidth(walker) - Elevate.getScaledWidth(mini)) / 2;
+				int miniLeft = posWorker.left + (ElevateActivity.getScaledWidth(walker) - ElevateActivity.getScaledWidth(mini)) / 2;
 				mini.setBounds(miniLeft, posWorker.bottom + 1, 
-						miniLeft + Elevate.getScaledWidth(mini), posWorker.bottom + 1 + Elevate.getScaledHeight(mini));
+						miniLeft + ElevateActivity.getScaledWidth(mini), posWorker.bottom + 1 + ElevateActivity.getScaledHeight(mini));
 				mini.draw(canvas);
 				
 				posWorker.offset(offset, 0);
@@ -286,7 +283,7 @@ public class Floor extends View {
 		if (specMode == MeasureSpec.EXACTLY) {
 			width = specSize;
 		} else {
-			width = Elevate.getScaledWidth(labelGraphic)
+			width = ElevateActivity.getScaledWidth(labelGraphic)
 					+ getPaddingLeft()
 					+ getPaddingRight();
 			if (specMode == MeasureSpec.AT_MOST) {
@@ -303,9 +300,9 @@ public class Floor extends View {
 			height = specSize;
 		} else {
 			Drawable mini = getResources().getDrawable(R.drawable.lmini2);
-			height = Elevate.getScaledHeight(labelGraphic)
-					+ Elevate.getScaledHeight(drwWorker) 
-					+ (isEntry() ? Elevate.getScaledHeight(mini)+1 : 0)
+			height = ElevateActivity.getScaledHeight(labelGraphic)
+					+ ElevateActivity.getScaledHeight(drwWorker) 
+					+ (isEntry() ? ElevateActivity.getScaledHeight(mini)+1 : 0)
 					+ getPaddingTop()
 					+ getPaddingBottom();
 			if (specMode == MeasureSpec.AT_MOST) {

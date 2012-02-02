@@ -18,14 +18,19 @@ At the end you see your score and the Hiscores all other players.
 Elevate is the android reincarnation of the old BerlinOnline cult online game from the late 1990s. It uses the original graphics and gameplay. The hiscore board is shared with the online version. This you can currently play the original at &lt;a href="http://www.berlinonline.de/elevate/"&gt;berlinonline.de/elevate&lt;/a&gt; and &lt;a href="http://www.berlin.de/elevate/"&gt;berlin.de/elevate&lt;/a&gt;.
 &lt;/p&gt;</string>
     <string name="Button_OK">OK</string>
-    <string name="score">Score: </string>
+    <string name="score">Your score: </string>
     <string name="new_customers">new visitors:</string>
     <string name="level">Level: </string>
     <string name="hiscoreJsonUrl">https://www.berlinonline.de/elevate/_bin/highscore.php?format=json</string>
-    <string name="highscore">Elevate Hiscores</string>
+    <string name="highscore">Highscore</string>
     <string name="record">Current Record</string>
     <string name="nick_for_hiscore">Nickname for Hiscore</string>
     <string name="post">Submit</string>
     <string name="cancel">Cancel</string>
     <string name="hiscoreApiKey">bXUau/siyIDNu/iQ3JjOR5SMdvs=</string>
+    <string name="Help">Help</string>
+    <string name="play">Play</string>
+    <string name="no_data">Highscore could\'t be loaded.</string>
+    <string name="no_score">-</string>
+    <string name="enter_a_nick_or_alias_name">Enter your nick or alias name</string>
 </resources>

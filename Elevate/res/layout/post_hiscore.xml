@@ -1,61 +1,68 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-  xmlns:android="http://schemas.android.com/apk/res/android"
-  android:layout_width="match_parent"
-  android:layout_height="wrap_content"
-  android:orientation="vertical"
->
-  <LinearLayout
-    android:layout_height="wrap_content"
-    android:layout_width="match_parent"
-    android:id="@+id/linearLayout1"
-    android:orientation="horizontal"
-  >
-    <TextView
-      android:layout_height="wrap_content"
-      android:id="@+id/tvScoreLabel"
-      android:text="@string/score"
-      android:layout_width="fill_parent"
-      android:paddingRight="5dp"
-      android:textStyle="bold"
-      android:layout_weight="1"
-      android:gravity="right" />
-    <TextView
-      android:layout_height="wrap_content"
-      android:id="@+id/tvScoreValue"
-      android:text="1234"
-      android:layout_width="fill_parent"
-      android:paddingLeft="5dp"
-      android:textStyle="bold"
-      android:layout_weight="1"
-      android:gravity="left" />
-  </LinearLayout>
-  <TextView
-    android:id="@+id/tvNickLabel"
-    android:text="@string/nick_for_hiscore"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content" />
-  <EditText
-    android:id="@+id/etNick"
-    android:layout_below="@id/tvNickLabel"
-    android:layout_width="250dp"
-    android:layout_height="wrap_content" />
-  <LinearLayout
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
-  >
-    <Button
-      android:id="@+id/btnPost"
-      android:text="@string/post"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:layout_weight="1" />
-    <Button
-      android:id="@+id/btnCancel"
-      android:text="@string/cancel"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:layout_weight="1" />
-  </LinearLayout>
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:id="@+id/linearLayout1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+
+        <TextView
+            android:id="@+id/tvScoreLabel"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="right"
+            android:paddingRight="5dp"
+            android:text="@string/score"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvScoreValue"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="left"
+            android:paddingLeft="5dp"
+            android:text="@string/no_score"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvNickLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/nick_for_hiscore" />
+
+    <EditText
+        android:id="@+id/etNick"
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:hint="@string/enter_a_nick_or_alias_name"
+        android:inputType="textNoSuggestions" 
+        />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+
+        <Button
+            android:id="@+id/btnPost"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/post" />
+
+        <Button
+            android:id="@+id/btnCancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/cancel" />
+    </LinearLayout>
+
 </LinearLayout>

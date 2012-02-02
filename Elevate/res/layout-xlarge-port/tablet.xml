@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:ads="http://schemas.android.com/apk/lib/com.google.ads"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <com.google.ads.AdView
+        android:id="@+id/adView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right"
+        ads:adSize="BANNER"
+        ads:adUnitId="a14dde028ad4833"
+        android:gravity="center"
+        ads:loadAdOnCreate="true" />
+
+    <fragment
+        android:id="@+id/game"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        class="de.taytec.elevate.Elevate" >
+
+        <!-- Preview: layout=@layout/elevate -->
+    </fragment>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="fill_parent"
+        android:gravity="right"
+        android:orientation="horizontal" >
+
+        <fragment
+            android:id="@+id/about"
+            android:layout_width="1dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            class="de.taytec.elevate.AboutFragment"
+            android:padding="5dp"
+            android:tag="about" >
+        </fragment>
+
+        <fragment
+            android:id="@+id/highscore"
+            android:layout_width="1dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            class="de.taytec.elevate.HighscoreFragment"
+            android:padding="5dp"
+            android:tag="highscore" >
+        </fragment>
+    </LinearLayout>
+
+</LinearLayout>

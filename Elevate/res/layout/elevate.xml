@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:elevate="http://schemas.android.com/apk/res/de.taytec.elevate"
+    xmlns:ads="http://schemas.android.com/apk/lib/com.google.ads"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:gravity="center"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:layout_width="506dp"
+        android:layout_height="wrap_content" >
+
+        <ImageButton
+            android:id="@+id/btnPlay"
+            style="@android:style/Widget.DeviceDefault.Button.Borderless"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:contentDescription="@string/play"
+            android:onClick="onClickPlay"
+            android:src="@drawable/spielen" />
+
+        <ImageButton
+            android:id="@+id/btnHiscore"
+            style="@android:style/Widget.DeviceDefault.Button.Borderless"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:contentDescription="@string/highscore"
+            android:onClick="onClickHighscore"
+            android:src="@drawable/hiscore" />
+
+        <ImageButton
+            android:id="@+id/btnHelp"
+            style="@android:style/Widget.DeviceDefault.Button.Borderless"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:contentDescription="@string/Help"
+            android:onClick="onClickHelp"
+            android:src="@drawable/anleitung" />
+    </LinearLayout>
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/ivRoofLeft"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:scaleType="centerCrop"
+            android:src="@drawable/dach_links" />
+
+        <ImageView
+            android:id="@+id/ivRoofMiddle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_toRightOf="@+id/ivRoofLeft"
+            android:scaleType="centerCrop"
+            android:src="@drawable/dach_mitte" />
+
+        <ImageView
+            android:id="@+id/ivRoofRight"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_toRightOf="@+id/ivRoofMiddle"
+            android:scaleType="centerCrop"
+            android:src="@drawable/dach_rechts" />
+
+        <de.taytec.elevate.Floor
+            android:id="@+id/svLeftFloor4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignRight="@+id/ivRoofLeft"
+            android:layout_below="@+id/ivRoofLeft"
+            elevate:floorLeft="true"
+            elevate:src="@drawable/lfloor4"
+            elevate:surface="4" />
+
+        <de.taytec.elevate.Floor
+            android:id="@+id/svLeftFloor3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignRight="@+id/svLeftFloor4"
+            android:layout_below="@+id/svLeftFloor4"
+            elevate:floorLeft="true"
+            elevate:src="@drawable/lfloor3"
+            elevate:surface="3" />
+
+        <de.taytec.elevate.Floor
+            android:id="@+id/svLeftFloor2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignRight="@+id/svLeftFloor3"
+            android:layout_below="@+id/svLeftFloor3"
+            elevate:floorLeft="true"
+            elevate:src="@drawable/lfloor2"
+            elevate:surface="2" />
+
+        <de.taytec.elevate.Floor
+            android:id="@+id/svLeftEntry"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignRight="@+id/svLeftFloor2"
+            android:layout_below="@+id/svLeftFloor2"
+            elevate:entry="true"
+            elevate:floorLeft="true"
+            elevate:src="@drawable/lfloorentry"
+            elevate:surface="1" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/ivRoofMiddle"
+            android:layout_toRightOf="@+id/svLeftFloor4" >
+
+            <de.taytec.elevate.Elevator
+                android:id="@+id/leftElevator"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                elevate:leftSide="true"
+                elevate:src="@drawable/elevatorempty" />
+        </LinearLayout>
+
+        <de.taytec.elevate.Floor
+            android:id="@+id/svRightFloor4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@+id/ivRoofRight"
+            android:layout_below="@+id/ivRoofRight"
+            elevate:floorLeft="false"
+            elevate:src="@drawable/rfloor4"
+            elevate:surface="4" />
+
+        <de.taytec.elevate.Floor
+            android:id="@+id/svRightFloor3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@+id/svRightFloor4"
+            android:layout_below="@+id/svRightFloor4"
+            elevate:floorLeft="false"
+            elevate:src="@drawable/rfloor3"
+            elevate:surface="3" />
+
+        <de.taytec.elevate.Floor
+            android:id="@+id/svRightFloor2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@+id/svRightFloor3"
+            android:layout_below="@+id/svRightFloor3"
+            elevate:floorLeft="false"
+            elevate:src="@drawable/rfloor2"
+            elevate:surface="2" />
+
+        <de.taytec.elevate.Floor
+            android:id="@+id/svRightEntry"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@+id/svRightFloor2"
+            android:layout_below="@+id/svRightFloor2"
+            elevate:entry="true"
+            elevate:floorLeft="false"
+            elevate:src="@drawable/rfloorentry"
+            elevate:surface="1" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/ivRoofRight"
+            android:layout_toLeftOf="@+id/svRightFloor4" >
+
+            <de.taytec.elevate.Elevator
+                android:id="@+id/rightElevator"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                elevate:leftSide="false"
+                elevate:src="@drawable/elevatorempty" />
+        </LinearLayout>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/relativeLayout1"
+        android:layout_width="500dp"
+        android:layout_height="wrap_content"
+        android:padding="5dp" >
+
+        <TextView
+            android:id="@+id/tvLevel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:text="@string/level" />
+
+        <ProgressBar
+            android:id="@+id/pbLevel"
+            style="@android:style/Widget.ProgressBar.Horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/tvLevel"
+            android:layout_alignParentRight="true"
+            android:layout_alignTop="@+id/tvLevel"
+            android:layout_marginLeft="5dp"
+            android:layout_toRightOf="@+id/tvLevel"
+            android:max="35" />
+
+        <TextView
+            android:id="@+id/tvNewCustomers"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_below="@+id/tvLevel"
+            android:text="@string/new_customers" />
+    </RelativeLayout>
+
+</LinearLayout>

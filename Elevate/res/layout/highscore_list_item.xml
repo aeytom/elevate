@@ -1,32 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-  xmlns:android="http://schemas.android.com/apk/res/android"
-  android:orientation="horizontal"
-  android:layout_width="fill_parent"
-  android:layout_height="wrap_content"
-  android:padding="4dp"
->
-  <TextView
-    android:text="1"
-    android:id="@+id/itemLine"
-    android:gravity="right"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    android:layout_width="30dp"
-    style="@android:style/TextAppearance.Small.Inverse"
-    android:layout_weight="0" />
-  <TextView
-    android:id="@+id/itemName"
-    android:layout_height="wrap_content"
-    android:layout_width="wrap_content"
-    android:paddingLeft="15dp"
-    android:paddingRight="5dp"
-    style="@android:style/TextAppearance.Small.Inverse"
-    android:layout_weight="1" />
-  <TextView
-    android:id="@+id/itemValue"
-    android:gravity="right"
-    android:layout_height="wrap_content"
-    android:layout_width="wrap_content"
-    style="@android:style/TextAppearance.Small.Inverse"
-    android:layout_weight="0" />
+    android:orientation="horizontal"
+    android:padding="4dp" >
+
+    <TextView
+        android:id="@+id/itemLine"
+        android:layout_width="30dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="0"
+        android:gravity="right" />
+
+    <TextView
+        android:id="@+id/itemName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:paddingLeft="15dp"
+        android:paddingRight="5dp" />
+
+    <TextView
+        android:id="@+id/itemValue"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="0"
+        android:gravity="right" />
+
 </LinearLayout>

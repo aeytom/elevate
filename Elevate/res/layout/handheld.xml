@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:elevate="http://schemas.android.com/apk/res/de.taytec.elevate"
+    xmlns:ads="http://schemas.android.com/apk/lib/com.google.ads"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="vertical" >
+
+    <com.google.ads.AdView
+        android:id="@+id/adView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        ads:adSize="BANNER"
+        ads:adUnitId="a14dde028ad4833"
+        android:gravity="center"
+        ads:loadAdOnCreate="true" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" >
+
+        <ImageButton
+            android:id="@+id/btnPlay"
+            style="@android:style/Widget.DeviceDefault.Button.Borderless"
+            android:layout_width="106.67dp"
+            android:layout_height="74.67dp"
+            android:contentDescription="@string/play"
+            android:onClick="onClickPlay"
+            android:scaleType="fitXY"
+            android:src="@drawable/spielen" />
+
+        <ImageButton
+            android:id="@+id/btnHiscore"
+            style="@android:style/Widget.DeviceDefault.Button.Borderless"
+            android:layout_width="106.67dp"
+            android:layout_height="74.67dp"
+            android:contentDescription="@string/highscore"
+            android:onClick="onClickHighscore"
+            android:scaleType="fitXY"
+            android:src="@drawable/hiscore" />
+
+        <ImageButton
+            android:id="@+id/btnHelp"
+            style="@android:style/Widget.DeviceDefault.Button.Borderless"
+            android:layout_width="106.67dp"
+            android:layout_height="74.67dp"
+            android:contentDescription="@string/Help"
+            android:onClick="onClickHelp"
+            android:scaleType="fitXY"
+            android:src="@drawable/anleitung" />
+    </LinearLayout>
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/pager"
+        android:layout_width="match_parent"
+        android:layout_height="fill_parent" />
+
+</LinearLayout>

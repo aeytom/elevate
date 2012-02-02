@@ -106,7 +106,7 @@ public class Elevator extends View {
 		if (specMode == MeasureSpec.EXACTLY) {
 			width = specSize;
 		} else {
-			width = Elevate.getScaledWidth(drwElevator) + getPaddingLeft()
+			width = ElevateActivity.getScaledWidth(drwElevator) + getPaddingLeft()
 					+ getPaddingRight();
 			if (specMode == MeasureSpec.AT_MOST) {
 				width = Math.min(width, specSize);
@@ -121,7 +121,7 @@ public class Elevator extends View {
 			height = specSize;
 		} else {
 			Drawable mini = getResources().getDrawable(R.drawable.lmini2);
-			height = Elevate.FLOORS * Elevate.getScaledHeight(drwElevator) + 2 * Elevate.getScaledHeight(mini) + 2;
+			height = Elevate.FLOORS * ElevateActivity.getScaledHeight(drwElevator) + 2 * ElevateActivity.getScaledHeight(mini) + 2;
 			if (specMode == MeasureSpec.AT_MOST) {
 				height = Math.min(height, specSize);
 			}
@@ -134,18 +134,6 @@ public class Elevator extends View {
 		setMeasuredDimension(width, height);
 	}
 
-	/** 
-	 * delay postioning of elevator to time after measuring the view size
-	 * 
-	 * @see android.view.View#onLayout(boolean, int, int, int, int)
-	 */
-	@Override
-	protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-		super.onLayout(changed, left, top, right, bottom);
-		if (! changed) {
-			driveToFloor(floor);
-		}
-	}
 
 	/**
 	 * draw the elevator to view
@@ -165,8 +153,8 @@ public class Elevator extends View {
 
 		// draw elevator
 		Drawable elevator = travelers.isEmpty() ? drwElevatorEmpty : drwElevator;
-		int top = (Elevate.FLOORS - 1) * Elevate.getScaledHeight(elevator);
-		elevator.setBounds(0, top, Elevate.getScaledWidth(elevator), top + Elevate.getScaledHeight(elevator));
+		int top = (Elevate.FLOORS - 1) * ElevateActivity.getScaledHeight(elevator);
+		elevator.setBounds(0, top, ElevateActivity.getScaledWidth(elevator), top + ElevateActivity.getScaledHeight(elevator));
 		elevator.draw(canvas);
 
 		// draw cable
@@ -176,10 +164,10 @@ public class Elevator extends View {
 		Rect posElevator = elevator.getBounds();
 		for (int i = travelers.size() - 1; i >= 0; i--) {
 			Drawable cd = travelers.get(i).getDrawable();
-			int ypos = 1 + posElevator.bottom + (1 + Elevate.getScaledHeight(cd)) * (i / CUSTOMERS_PER_ROW);
-			int xpos = (i % CUSTOMERS_PER_ROW) * (1 + Elevate.getScaledWidth(cd));
-			cd.setBounds(xpos, ypos, xpos + Elevate.getScaledWidth(cd),
-					ypos + Elevate.getScaledHeight(cd));
+			int ypos = 1 + posElevator.bottom + (1 + ElevateActivity.getScaledHeight(cd)) * (i / CUSTOMERS_PER_ROW);
+			int xpos = (i % CUSTOMERS_PER_ROW) * (1 + ElevateActivity.getScaledWidth(cd));
+			cd.setBounds(xpos, ypos, xpos + ElevateActivity.getScaledWidth(cd),
+					ypos + ElevateActivity.getScaledHeight(cd));
 			cd.draw(canvas);
 		}
 	}
@@ -189,7 +177,7 @@ public class Elevator extends View {
 	 */
 	@Override
 	protected void onAnimationEnd() {
-//		Log.d("Elevator", "onAnimationEnd() "+toString());
+		Log.d(getClass().getSimpleName(), "onAnimationEnd() "+toString());
 		exchangeCustomers();
 		if (null != callback) {
 			callback.onElevatorArived(this);
@@ -202,10 +190,10 @@ public class Elevator extends View {
 	 * @param generateNewCustomers generate number of new customers when elevator stops  
 	 */
 	public void driveToFloor(int floor) {
-		int from = 0 - this.floor * Elevate.getScaledHeight(drwElevator);
-		int to = 0 - floor * Elevate.getScaledHeight(drwElevator);
+		int from = 0 - this.floor * ElevateActivity.getScaledHeight(drwElevator);
+		int to = 0 - floor * ElevateActivity.getScaledHeight(drwElevator);
 		if (to <= 0) {
-//			Log.d("Elevator", "driveToFloor() from: "+from+" to: "+to);
+			Log.d(getClass().getSimpleName(), "driveToFloor() from: "+from+" to: "+to);
 			TranslateAnimation an = new TranslateAnimation(0, 0, from, to);
 			an.setInterpolator(AnimationUtils.loadInterpolator(getContext(),
 					android.R.anim.accelerate_decelerate_interpolator));

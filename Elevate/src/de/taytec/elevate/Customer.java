@@ -47,7 +47,7 @@ class Customer {
 			throw new AndroidRuntimeException("wrong floor id: "+floor);
 		}
 		icon = context.getResources().getDrawable(id);
-		icon.setBounds(0, 0, Elevate.getScaledWidth(icon), Elevate.getScaledHeight(icon));
+		icon.setBounds(0, 0, ElevateActivity.getScaledWidth(icon), ElevateActivity.getScaledHeight(icon));
 //		Log.d("Elevate::Customer", "type: "+String.valueOf(type)+" floor: "+String.valueOf(floor));
 	}
 	
