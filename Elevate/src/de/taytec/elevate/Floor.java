@@ -146,7 +146,7 @@ public class Floor extends View {
 			setFloorLeft(a.getBoolean(R.styleable.Floor_floorLeft, true));
 			setFloorSurface(a.getInt(R.styleable.Floor_surface, 4));
 			labelGraphic = getResources().getDrawable(a.getResourceId(R.styleable.Floor_src, R.drawable.lfloorentry));
-//			Log.d("labelGraphic", "w="+labelGraphic.getIntrinsicWidth()+" h="+labelGraphic.getIntrinsicHeight());
+//			if (ElevateActivity.DEBUG) Log.d("labelGraphic", "w="+labelGraphic.getIntrinsicWidth()+" h="+labelGraphic.getIntrinsicHeight());
 			labelGraphic.setBounds(0, 0, ElevateActivity.getScaledWidth(labelGraphic), ElevateActivity.getScaledHeight(labelGraphic));
 			a.recycle();
 		}
@@ -291,7 +291,7 @@ public class Floor extends View {
 			}
 		}
 
-//		Log.d("Elevate:Floor", "onMeasure width ("+specMode+") "+specSize+" => "+width);
+//		if (ElevateActivity.DEBUG) Log.d("Elevate:Floor", "onMeasure width ("+specMode+") "+specSize+" => "+width);
 		int height = 0;
 		specMode = MeasureSpec.getMode(heightMeasureSpec);
 		specSize = MeasureSpec.getSize(heightMeasureSpec);
@@ -310,7 +310,7 @@ public class Floor extends View {
 			}
 		}
 
-//		Log.d("Elevate:Floor", "onMeasure height ("+specMode+") "+specSize+" => "+height);
+//		if (ElevateActivity.DEBUG) Log.d("Elevate:Floor", "onMeasure height ("+specMode+") "+specSize+" => "+height);
 		setMeasuredDimension(width, height);
 	}
 
@@ -374,7 +374,7 @@ public class Floor extends View {
 		else {
 			age ++;
 		}
-//		Log.d("Elvate:Floor", toString());
+//		if (ElevateActivity.DEBUG) Log.d("Elvate:Floor", toString());
 		return maxAge;
 	}
 

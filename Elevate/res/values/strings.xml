@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Elevate</string>
-    <string name="about">&lt;h1&gt;Help Elevate VERSION&lt;/h1&gt;
-&lt;p&gt;
+    <string name="about">&lt;p&gt;
 You see a publishing house with many floors. Each floor has its own color. New visitors arrive in the entrance floor at every round. The visitors color marker shows the destination floor.
 &lt;/p&gt;
 &lt;p&gt;
@@ -33,4 +32,5 @@ Elevate is the android reincarnation of the old BerlinOnline cult online game fr
     <string name="no_data">Highscore could\'t be loaded.</string>
     <string name="no_score">-</string>
     <string name="enter_a_nick_or_alias_name">Enter your nick or alias name</string>
+    <string name="help_elevate">Help Elevate 12.1beta</string>
 </resources>

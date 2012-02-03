@@ -1,8 +1,5 @@
 package de.taytec.elevate;
 
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.Html;
@@ -14,30 +11,28 @@ import android.widget.TextView;
 
 public class AboutFragment extends Fragment {
 
+	private View mView;
+
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see android.support.v4.app.Fragment#onCreateView(android.view.LayoutInflater,
+	 * @see
+	 * android.support.v4.app.Fragment#onCreateView(android.view.LayoutInflater,
 	 * android.view.ViewGroup, android.os.Bundle)
 	 */
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		String versionName = "";
-		try {
-			PackageInfo pInfo = getActivity().getPackageManager()
-					.getPackageInfo(getActivity().getPackageName(),
-							PackageManager.GET_META_DATA);
-			versionName = pInfo.versionName;
-		} catch (NameNotFoundException e) {
-			Log.e(getActivity().getPackageName(),
-					"createAboutDialog() : PackageManager.GET_META_DATA", e);
+		if (ElevateActivity.DEBUG) Log.v(getClass().getSimpleName(), "onCreateView " + container);
+		if (null != mView && mView.getParent() instanceof ViewGroup) {
+			((ViewGroup) mView.getParent()).removeView(mView);
+		} else {
+			mView = inflater.inflate(R.layout.about, container, false);
+			TextView tvAbout = (TextView) mView.findViewById(R.id.tvAbout);
+			tvAbout.setText(Html.fromHtml(getResources().getString(
+					R.string.about)));
 		}
-		Log.v(getClass().getSimpleName(), "onCreateView "+container);
-		View view = inflater.inflate(R.layout.about, container, false);
-		TextView tvAbout = (TextView) view.findViewById(R.id.tvAbout);
-		tvAbout.setText(Html.fromHtml(getResources().getString(R.string.about).replace("VERSION", versionName)));
-		return view;
+		return mView;
 	}
 
 }

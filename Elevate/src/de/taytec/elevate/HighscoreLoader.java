@@ -50,7 +50,7 @@ class HighscoreLoader extends AsyncTaskLoader<List<HighscoreItem>> {
 	 */
 	@Override
 	public List<HighscoreItem> loadInBackground() {
-		Log.d(getClass().getSimpleName(), "loadInBackground()");
+		if (ElevateActivity.DEBUG) Log.d(getClass().getSimpleName(), "loadInBackground()");
 		ArrayList<HighscoreItem> list = new ArrayList<HighscoreItem>();
 		lowestHiscore = -1;
 
@@ -64,18 +64,18 @@ class HighscoreLoader extends AsyncTaskLoader<List<HighscoreItem>> {
 			con.setConnectTimeout(5000);
 			con.setReadTimeout(2000);
 			if (HttpURLConnection.HTTP_OK != con.getResponseCode()) {
-				Log.e(getClass().getSimpleName(),
+				if (ElevateActivity.DEBUG) Log.e(getClass().getSimpleName(),
 						"Response code: " + con.getResponseMessage());
 				return list;
 			}
 			content = convertStreamToString(con.getInputStream());
 
 		} catch (MalformedURLException e) {
-			Log.e(getClass().getSimpleName(), getContext().getResources()
+			if (ElevateActivity.DEBUG) Log.e(getClass().getSimpleName(), getContext().getResources()
 					.getString(R.string.hiscoreJsonUrl) + ": " + e.getMessage());
 			return list;
 		} catch (Exception e) {
-			Log.e(getClass().getSimpleName(), e.toString());
+			if (ElevateActivity.DEBUG) Log.e(getClass().getSimpleName(), e.toString());
 			return list;
 		} finally {
 			if (null != con) {
@@ -92,7 +92,7 @@ class HighscoreLoader extends AsyncTaskLoader<List<HighscoreItem>> {
 			}
 			lowestHiscore = (null == jo) ? 0 : jo.getInt("points");
 		} catch (JSONException e) {
-			Log.e(getClass().getSimpleName(), e.getMessage());
+			if (ElevateActivity.DEBUG) Log.e(getClass().getSimpleName(), e.getMessage());
 		}
 
 		return list;

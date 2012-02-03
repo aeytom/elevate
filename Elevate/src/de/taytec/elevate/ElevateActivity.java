@@ -20,6 +20,8 @@ import android.widget.ListAdapter;
 
 public class ElevateActivity extends FragmentActivity {
 
+	static final boolean DEBUG = false;
+
 	private FrameLayout detailPane;
 
 	private HighscoreFragment mHighscore;
@@ -57,10 +59,10 @@ public class ElevateActivity extends FragmentActivity {
 			drawableScaleFactor = 0.75F * metrics.widthPixels / metrics.density / (146F + 86F + 146F);
 		}
 		
-		Log.d(getClass().getSimpleName(), getWindowManager().getDefaultDisplay().getOrientation() + " :::: "
+		if (ElevateActivity.DEBUG) Log.d(getClass().getSimpleName(), getWindowManager().getDefaultDisplay().getOrientation() + " :::: "
 				+ ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-		Log.d(getClass().getSimpleName(), metrics.toString());
-		Log.d(getClass().getSimpleName(), "scale factor: " + drawableScaleFactor);
+		if (ElevateActivity.DEBUG) Log.d(getClass().getSimpleName(), metrics.toString());
+		if (ElevateActivity.DEBUG) Log.d(getClass().getSimpleName(), "scale factor: " + drawableScaleFactor);
 
 		
 		mHighscoreAdapter = new HighscoreAdapter(this);
@@ -71,13 +73,13 @@ public class ElevateActivity extends FragmentActivity {
 		if (isTablet()) {
 			setContentView(R.layout.tablet);
 			mElevate = (Elevate) getSupportFragmentManager().findFragmentById(R.id.game);
-			mAbout =  (AboutFragment) getSupportFragmentManager().findFragmentById(R.id.about);
+			mAbout = new AboutFragment();
 			
 			detailPane = (FrameLayout) findViewById(R.id.detailPane);
 			if (null != detailPane && detailPane.getVisibility() != View.VISIBLE) {
 				detailPane = null;
 			}
-			Log.d(getClass().getSimpleName(), "detailPane: "+detailPane);
+			if (ElevateActivity.DEBUG) Log.d(getClass().getSimpleName(), "detailPane: "+detailPane);
 			onClickHelp(detailPane);
 		}
 		else {			
@@ -104,24 +106,26 @@ public class ElevateActivity extends FragmentActivity {
 	 * @param score
 	 */
 	public void showHighscore(int score) {
-		if (null == detailPane) {
-			Log.d(getClass().getSimpleName(), "showHighscore() dialog");
+		if (isTablet()) {
+			if (detailPane != null) {
+				if (ElevateActivity.DEBUG) Log.d(getClass().getSimpleName(), "showHighscore() inline score="+score);
+				Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.detailPane);				
+				if (!(fragment instanceof HighscoreFragment)) {
+					if (ElevateActivity.DEBUG) Log.d(getClass().getSimpleName(), "showHighscore() replace inline");
+					getSupportFragmentManager()
+							.beginTransaction()
+							.replace(R.id.detailPane, mHighscore, "highscore")
+							.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+							.commit();
+				}
+			}			
+		}
+		else {
+			if (ElevateActivity.DEBUG) Log.d(getClass().getSimpleName(), "showHighscore() dialog");
 			if (null != mPager) {
 				mPager.setCurrentItem(1, true);
 			}
 		} 
-		else {
-			Log.d(getClass().getSimpleName(), "showHighscore() inline score="+score);
-			Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.detailPane);				
-			if (!(fragment instanceof HighscoreFragment)) {
-				Log.d(getClass().getSimpleName(), "showHighscore() replace inline");
-				getSupportFragmentManager()
-						.beginTransaction()
-						.replace(R.id.detailPane, mHighscore, "highscore")
-						.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-						.commit();
-			}
-		}
 		mHighscore.setScore(score);
 		HighscoreLoader loader = (HighscoreLoader) getSupportLoaderManager().initLoader(0, null, mHighscoreAdapter);
 		if (500 < score && score > loader.getMinimumHighscore()) {
@@ -165,25 +169,26 @@ public class ElevateActivity extends FragmentActivity {
 	 * @param v
 	 */
 	public void onClickHelp(View v) {
-		Log.v(getClass().getSimpleName(), "show help");
-		if (null == detailPane) {
-			Log.v(getClass().getSimpleName(), "show help");
-			if (null != mPager) {
-				mPager.setCurrentItem(2, true);
+		if (ElevateActivity.DEBUG) Log.v(getClass().getSimpleName(), "show help");
+		if (isTablet()) {
+			if (detailPane != null) {
+				if (ElevateActivity.DEBUG) Log.v(getClass().getSimpleName(), "show help in detail pane");
+				Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.detailPane);
+				if (!(fragment instanceof AboutFragment)) {
+					if (ElevateActivity.DEBUG) Log.d(getClass().getSimpleName(), "about() replace inline");
+					getSupportFragmentManager()
+							.beginTransaction()
+							.addToBackStack(null)
+							.replace(R.id.detailPane, mAbout, "about")
+							.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+							.commit();
+				}
 			}
 		}
 		else {
-			Log.v(getClass().getSimpleName(), "show help in detail pane");
-			Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.detailPane);
-			if (!(fragment instanceof AboutFragment)) {
-				Log.d(getClass().getSimpleName(), "about() replace inline");
-				fragment = new AboutFragment();	
-				getSupportFragmentManager()
-						.beginTransaction()
-						.addToBackStack(null)
-						.replace(R.id.detailPane, fragment, "about")
-						.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-						.commit();
+			if (ElevateActivity.DEBUG) Log.v(getClass().getSimpleName(), "show help");
+			if (null != mPager) {
+				mPager.setCurrentItem(2, true);
 			}
 		}
 	}
@@ -194,7 +199,7 @@ public class ElevateActivity extends FragmentActivity {
 	 * @param v
 	 */
 	public void onClickPlay(View v) {
-		Log.v(getClass().getSimpleName(), "start game");
+		if (ElevateActivity.DEBUG) Log.v(getClass().getSimpleName(), "start game");
 		if (null != mPager) {
 			if (0 == mPager.getCurrentItem())
 			{
@@ -219,7 +224,7 @@ public class ElevateActivity extends FragmentActivity {
 		ConnectivityManager connectivity = (ConnectivityManager) getSystemService(service);
 		NetworkInfo netInfo = connectivity.getActiveNetworkInfo();
 		if (null == netInfo || !netInfo.isAvailable()) {
-			// Log.d("Elevate", "Network not available");
+			// if (ElevateActivity.DEBUG) Log.d("Elevate", "Network not available");
 			return false;
 		}
 		return true;
@@ -294,7 +299,7 @@ public class ElevateActivity extends FragmentActivity {
 
 		@Override
 		public Fragment getItem(int position) {
-			Log.d(getClass().getSimpleName(), "getItem() pos="+position);
+			if (ElevateActivity.DEBUG) Log.d(getClass().getSimpleName(), "getItem() pos="+position);
 			switch (position) {
 			case 0:
 				return mElevate;

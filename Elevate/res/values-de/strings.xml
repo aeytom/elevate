@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="about">&lt;h1>Hilfe zu Elevate VERSION&lt;/h1>
-&lt;p>
+    <string name="help_elevate">Hilfe zu Elevate 12.1beta</string>
+    <string name="about">&lt;p>
 Du siehst ein Verlagshaus mit vielen Etagen. Jede Etage hat ihre eigene Farbe. Durch die beiden Eingänge kommen &lt;B>pro Spielzug neue Besucher&lt;/B>. An ihrer Farbe erkennst Du, in welche Etage sie wollen.
 &lt;/p>
 &lt;p>

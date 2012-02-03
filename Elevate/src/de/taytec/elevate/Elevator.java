@@ -127,7 +127,7 @@ public class Elevator extends View {
 			}
 		}
 
-//		Log.d("Elevate::Elevator",
+//		if (ElevateActivity.DEBUG) Log.d("Elevate::Elevator",
 //				"onMeasure() mode:" + specMode + " size:"
 //						+ specSize + " result: "
 //						+ width+","+height);
@@ -177,7 +177,7 @@ public class Elevator extends View {
 	 */
 	@Override
 	protected void onAnimationEnd() {
-		Log.d(getClass().getSimpleName(), "onAnimationEnd() "+toString());
+		if (ElevateActivity.DEBUG) Log.d(getClass().getSimpleName(), "onAnimationEnd() "+toString());
 		exchangeCustomers();
 		if (null != callback) {
 			callback.onElevatorArived(this);
@@ -193,7 +193,7 @@ public class Elevator extends View {
 		int from = 0 - this.floor * ElevateActivity.getScaledHeight(drwElevator);
 		int to = 0 - floor * ElevateActivity.getScaledHeight(drwElevator);
 		if (to <= 0) {
-			Log.d(getClass().getSimpleName(), "driveToFloor() from: "+from+" to: "+to);
+			if (ElevateActivity.DEBUG) Log.d(getClass().getSimpleName(), "driveToFloor() from: "+from+" to: "+to);
 			TranslateAnimation an = new TranslateAnimation(0, 0, from, to);
 			an.setInterpolator(AnimationUtils.loadInterpolator(getContext(),
 					android.R.anim.accelerate_decelerate_interpolator));

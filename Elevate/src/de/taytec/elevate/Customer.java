@@ -48,7 +48,7 @@ class Customer {
 		}
 		icon = context.getResources().getDrawable(id);
 		icon.setBounds(0, 0, ElevateActivity.getScaledWidth(icon), ElevateActivity.getScaledHeight(icon));
-//		Log.d("Elevate::Customer", "type: "+String.valueOf(type)+" floor: "+String.valueOf(floor));
+//		if (ElevateActivity.DEBUG) Log.d("Elevate::Customer", "type: "+String.valueOf(type)+" floor: "+String.valueOf(floor));
 	}
 	
 	

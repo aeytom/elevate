@@ -61,7 +61,7 @@ public class HighscorePostTask extends AsyncTask<Bundle, Integer, Boolean> {
 			postMethod.setEntity(new UrlEncodedFormEntity(vals));
 			response = httpClient.execute(postMethod);
 		} catch (Exception e) {
-			Log.e(getClass().getSimpleName(), e.getMessage());
+			if (ElevateActivity.DEBUG) Log.e(getClass().getSimpleName(), e.getMessage());
 			return false;
 		}
 
@@ -73,7 +73,7 @@ public class HighscorePostTask extends AsyncTask<Bundle, Integer, Boolean> {
 	 */
 	@Override
 	protected void onPostExecute(Boolean result) {
-		Log.d(getClass().getSimpleName(), "onPostExecute()"+result);
+		if (ElevateActivity.DEBUG) Log.d(getClass().getSimpleName(), "onPostExecute()"+result);
 		((ElevateActivity) getContext()).refreshHighscore();
 	}
 	

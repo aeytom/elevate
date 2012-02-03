@@ -45,7 +45,7 @@ public class Elevate extends Fragment implements OnClickListener, Elevator.Callb
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		
-		Log.d(getClass().getSimpleName(), "onCreateView()");
+		if (ElevateActivity.DEBUG) Log.d(getClass().getSimpleName(), "onCreateView()");
 		
 		if (null != mView && mView.getParent() instanceof ViewGroup) {
 			((ViewGroup)mView.getParent()).removeView(mView);
@@ -96,10 +96,10 @@ public class Elevate extends Fragment implements OnClickListener, Elevator.Callb
 				return;
 			}
 
-			Log.d(getClass().getSimpleName(), "onclick()");
+			if (ElevateActivity.DEBUG) Log.d(getClass().getSimpleName(), "onclick()");
 			
 			Floor f = (Floor) v;
-			Log.d(getClass().getSimpleName(), "click: "+f);
+			if (ElevateActivity.DEBUG) Log.d(getClass().getSimpleName(), "click: "+f);
 			int ls;
 			int rs;
 			if (f.isFloorLeft()) {
@@ -125,7 +125,7 @@ public class Elevate extends Fragment implements OnClickListener, Elevator.Callb
 	@Override
 	public void onElevatorArived(Elevator elv) {
 		int maxAge = elv.timeTick();
-		Log.d(getClass().getSimpleName(), "maxAge="+maxAge);
+		if (ElevateActivity.DEBUG) Log.d(getClass().getSimpleName(), "maxAge="+maxAge);
 		// show game over warning
 		setProgress(maxAge > Floor.MAXWAIT);	
 
@@ -166,7 +166,7 @@ public class Elevate extends Fragment implements OnClickListener, Elevator.Callb
 	 */
 	public void startGame()
 	{
-		Log.d(getClass().getSimpleName(), "starGame()");
+		if (ElevateActivity.DEBUG) Log.d(getClass().getSimpleName(), "starGame()");
 		gameMove = 0;
 		score = 0;
 		setProgress(false);
