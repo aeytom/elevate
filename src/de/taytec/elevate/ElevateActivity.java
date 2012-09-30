@@ -20,7 +20,7 @@ import android.widget.ListAdapter;
 
 public class ElevateActivity extends FragmentActivity {
 
-	static final boolean DEBUG = false;
+	static final boolean DEBUG = true;
 
 	private FrameLayout detailPane;
 

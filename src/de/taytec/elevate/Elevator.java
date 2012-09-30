@@ -3,338 +3,493 @@
  */
 package de.taytec.elevate;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-
-import android.R.color;
-import android.content.Context;
-import android.content.res.TypedArray;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Rect;
-import android.graphics.drawable.Drawable;
-import android.util.AttributeSet;
-import android.util.Log;
-import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
-import android.view.animation.TranslateAnimation;
+import android.R.*;
+import android.content.*;
+import android.content.res.*;
+import android.graphics.*;
+import android.graphics.drawable.*;
+import android.os.*;
+import android.util.*;
+import android.view.*;
+import android.view.animation.*;
+import java.util.*;
+import android.app.*;
 
 /**
  * @author tay
  * 
  */
-public class Elevator extends View {
+public class Elevator extends View
+{
+	
 	/**
-	 * 
+	 * Anzahl der Etagen
 	 */
-	public static final int LEFT = 0;
-	public static final int RIGHT = 1;
-
+	public static final int FLOORS = 4;
+	/**
+	 * Anzahl der Marker der Reisenden in einer Zeile im Aufzug
+	 */
 	private static final int CUSTOMERS_PER_ROW = 4;
+	/** 
+	 * Anzahl der Reisenden die ein Aufzug fasst
+	 */
 	private static final int CAPACITY = 8;
+	/**
+	 * Liste der View-Ids der Etagen für die linke Seite
+	 */
+	private static final int[] leftFloorId = {
+		R.id.svLeftEntry,
+		R.id.svLeftFloor2,
+		R.id.svLeftFloor3,
+		R.id.svLeftFloor4
+	};
+	/**
+	 * Liste der View-Ids der Etagen für die rechte Seite
+	 */	
+	private static final int[] rightFloorId = {
+		R.id.svRightEntry,
+		R.id.svRightFloor2,
+		R.id.svRightFloor3,
+		R.id.svRightFloor4
+	};
+	
+	/**
+	 * Grafik für einen leeren Aufzug
+	 */
 	private Drawable drwElevatorEmpty;
+	/**
+	 * Grafik für einen besetzten Aufzug
+	 */
 	private Drawable drwElevator;
-	private int floor;
+	/**
+	 * grafische Defintion des Aufzugkabels
+	 */
 	private Paint pCable;
-	private boolean leftSide = true;
+	/**
+	 * Flag ob es sixh um den linken Aufzug handelt
+	 */
+	private boolean isLeft = true;
+	/*
+	 * zu benachrichtigende Instanz bei Ankunft des Aufzugs in einer Etage
+	 */
+	private ArrivedCallback arrivedCallback;
+	/**
+	 * Instanz der Lobby
+	 */
+	private Floor entryFloor;
+	
+	/*
+	 * Status des Aufzugs
+	 */
+	 
+	/**
+	 * Zugehörige Etagen
+	 */
 	private Floor[] floors;
+	/**
+	 * Im Aufzug befindliche Reisende
+	 */
 	private ArrayList<Customer> travelers;
-	private int success;
-	private Callback callback;
-
-
 	/**
-	 * @param context
+	 * Position des Aufzugs
 	 */
-	public Elevator(Context context) {
-		super(context);
-		initialize(null);
-	}
-
+	private int position;
 	/**
+	 * Anzahl erfolgreich tranportierter Reisender
+	 */
+	private int countDeliveredCustomers;
+
+	
+	/**
+	 * Konstruktor
+	 *
 	 * @param context
 	 * @param attrs
 	 */
-	public Elevator(Context context, AttributeSet attrs) {
+	public Elevator(Context context, AttributeSet attrs)
+	{
 		super(context, attrs);
-		initialize(attrs);
-	}
+		
+		if (ElevateActivity.DEBUG) Log.d(getClass().getSimpleName(), "__()");
 
-	/**
-	 * @param context
-	 * @param attrs
-	 * @param defStyle
-	 */
-	public Elevator(Context context, AttributeSet attrs, int defStyle) {
-		super(context, attrs, defStyle);
-		initialize(attrs);
-	}
-
-	/**
-	 * 
-	 * @param attrs
-	 */
-	private void initialize(AttributeSet attrs) {
-		if (attrs != null) {
-			TypedArray a = getContext().obtainStyledAttributes(attrs, R.styleable.Elevator);
-			setLeftSide(a.getBoolean(R.styleable.Elevator_leftSide, true));
-			a.recycle();
-		}
+		TypedArray a = getContext().obtainStyledAttributes(attrs, R.styleable.Elevator);
+		isLeft = a.getBoolean(R.styleable.Elevator_leftSide, true);
+		a.recycle();
+		
 		drwElevator = getResources().getDrawable(R.drawable.elevator);
 		drwElevatorEmpty = getResources().getDrawable(R.drawable.elevatorempty);
 		
 		pCable = new Paint();
 		pCable.setColor(Color.BLACK);
 		pCable.setStrokeWidth(0);
-		
-		travelers = new ArrayList<Customer>();
-		floor = -1;
-		success = 0;
 	}
 
+	/**
+	 * zugehörige Etagen zuweisen - Einmaliger Aufruf aus Elevate-Klasse
+	 * während der Intitialisierung 
+	 *
+	 * @param view Parent View über den sich die Etagen Views finden lassen
+	 */
+	public void setupFloors(View view)
+	{
+		floors = new Floor[FLOORS];
+		for (int i = 0; i < FLOORS; i++)
+		{
+			Floor f = (Floor) view.findViewById(isLeft ? leftFloorId[i] : rightFloorId[i]);
+			floors[i] = f;
+			if (f.isEntry()) {
+				entryFloor = f;
+			}
+		}
+		
+		reset();
+	}
+	
+	
+	/**
+	 * Reset Aufzugstatus bei Spielanfang
+	 */
+	public void reset()
+	{
+		travelers = new ArrayList<Customer>();
+		position = -1;
+		countDeliveredCustomers = 0;
+		
+		for (int i = 0; i < floors.length; i++)
+		{
+			floors[i].reset();
+		}
+	}
+	
+	
+	/**
+	 * Status des Aufzugs und der angeschlossenen Etagen
+	 * sichern.
+	 *
+	 * @return gesicherter Zustand des Aufzugs und der verbundenen Etagen 
+	 */
+	protected Bundle toBundle() {
+		if (ElevateActivity.DEBUG) Log.d(getClass().getSimpleName(), "toBundle()");
+		Bundle out = new Bundle();
+		out.putInt("floor", position);
+		out.putInt("success", countDeliveredCustomers);
+		
+		Bundle[] sp = new Bundle[floors.length];
+		for (int i = floors.length -1 ; i >= 0; i--) {
+			sp[i] = floors[i].toBundle();
+		}
+		out.putParcelableArray("floors", sp);
+
+		Bundle[] tl = new Bundle[travelers.size()];
+		for (int i = tl.length - 1; i >= 0; i--) {
+			tl[i] = travelers.get(i).toBundle();
+		}
+		out.putParcelableArray("travelers", tl);
+		
+		return out;
+	}
+	
+	
+	/**
+	 * Zustand des Aufzugs bei Wiederaktivierung wieder herstellen
+	 *
+	 * @param state Gesicherter alter Zustand 
+	 */
+	protected void fromBundle(Bundle state) {
+		if (ElevateActivity.DEBUG) Log.d(getClass().getSimpleName(), "fromBundle()");
+		setPosition(state.getInt("floor"));
+		countDeliveredCustomers = state.getInt("success");
+		Bundle[] sp = (Bundle[]) state.getParcelableArray("floors");
+		for (int i = floors.length - 1; i >= 0; i--) {
+			floors[i].fromBundle(this, sp[i]);
+		}
+
+		Bundle[] tl = (Bundle[]) state.getParcelableArray("travelers");
+		travelers.clear();
+		for (int i = 0; i < tl.length; i++) {
+			Customer c = new Customer(getContext(), this, tl[i]);
+			travelers.add(c);
+		}
+	}
+	
+	/**
+	 * aktuelle Etage des Aufzugs einstellen
+	 */
+	private void setPosition(int position)
+	{
+		this.position = position;
+		setY(0 - position * ElevateActivity.getScaledHeight(drwElevator));
+	}
+	
 	/**
 	 * @see android.view.View#measure(int, int)
 	 */
 	@Override
-	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
+	{
 		int width = 0;
 		int specMode = MeasureSpec.getMode(widthMeasureSpec);
 		int specSize = MeasureSpec.getSize(widthMeasureSpec);
-
-		if (specMode == MeasureSpec.EXACTLY) {
+		
+		if (specMode == MeasureSpec.EXACTLY)
+		{
 			width = specSize;
-		} else {
+		}
+		else
+		{
 			width = ElevateActivity.getScaledWidth(drwElevator) + getPaddingLeft()
-					+ getPaddingRight();
-			if (specMode == MeasureSpec.AT_MOST) {
+				+ getPaddingRight();
+			if (specMode == MeasureSpec.AT_MOST)
+			{
 				width = Math.min(width, specSize);
 			}
 		}
-
+		
 		int height = 0;
 		specMode = MeasureSpec.getMode(heightMeasureSpec);
 		specSize = MeasureSpec.getSize(heightMeasureSpec);
-
-		if (specMode == MeasureSpec.EXACTLY) {
+		
+		if (specMode == MeasureSpec.EXACTLY)
+		{
 			height = specSize;
-		} else {
+		}
+		else
+		{
 			Drawable mini = getResources().getDrawable(R.drawable.lmini2);
-			height = Elevate.FLOORS * ElevateActivity.getScaledHeight(drwElevator) + 2 * ElevateActivity.getScaledHeight(mini) + 2;
-			if (specMode == MeasureSpec.AT_MOST) {
+			height = Elevator.FLOORS * ElevateActivity.getScaledHeight(drwElevator) + 2 * ElevateActivity.getScaledHeight(mini) + 2;
+			if (specMode == MeasureSpec.AT_MOST)
+			{
 				height = Math.min(height, specSize);
 			}
 		}
-
+		
 //		if (ElevateActivity.DEBUG) Log.d("Elevate::Elevator",
 //				"onMeasure() mode:" + specMode + " size:"
 //						+ specSize + " result: "
 //						+ width+","+height);
 		setMeasuredDimension(width, height);
 	}
-
-
+	
+	
 	/**
 	 * draw the elevator to view
 	 * 
 	 * @see android.view.View#onDraw(android.graphics.Canvas)
 	 */
 	@Override
-	protected void onDraw(Canvas canvas) {
+	protected void onDraw(Canvas canvas)
+	{
 		super.onDraw(canvas);
-
-		if (isInEditMode()) {
+		
+		if (isInEditMode())
+		{
 			Paint p = new Paint();
 			p.setColor(color.darker_gray);
 			canvas.drawPaint(p);
 			return;
 		}
-
+		
 		// draw elevator
 		Drawable elevator = travelers.isEmpty() ? drwElevatorEmpty : drwElevator;
-		int top = (Elevate.FLOORS - 1) * ElevateActivity.getScaledHeight(elevator);
+		int top = (Elevator.FLOORS - 1) * ElevateActivity.getScaledHeight(elevator);
 		elevator.setBounds(0, top, ElevateActivity.getScaledWidth(elevator), top + ElevateActivity.getScaledHeight(elevator));
 		elevator.draw(canvas);
-
+		
 		// draw cable
 		canvas.drawLine(getWidth() / 2F, 0F, getWidth() / 2F, (float) top, pCable);
-
+		
 		// draw customers
 		Rect posElevator = elevator.getBounds();
-		for (int i = travelers.size() - 1; i >= 0; i--) {
+		for (int i = travelers.size() - 1; i >= 0; i--)
+		{
 			Drawable cd = travelers.get(i).getDrawable();
 			int ypos = 1 + posElevator.bottom + (1 + ElevateActivity.getScaledHeight(cd)) * (i / CUSTOMERS_PER_ROW);
 			int xpos = (i % CUSTOMERS_PER_ROW) * (1 + ElevateActivity.getScaledWidth(cd));
 			cd.setBounds(xpos, ypos, xpos + ElevateActivity.getScaledWidth(cd),
-					ypos + ElevateActivity.getScaledHeight(cd));
+						 ypos + ElevateActivity.getScaledHeight(cd));
 			cd.draw(canvas);
 		}
 	}
-
-	/* (non-Javadoc)
+	
+	/**
+	 * Event Handler am Ende der Anmtion des Aufzugs ander Zieletage
+	 *
+	 * Aufgerufen wird eine Callback-Funktion im Spiel, die dafür sorgt,dass die Reisenden
+	 * entladen werden.
+	 *
 	 * @see android.view.View#onAnimationEnd()
 	 */
 	@Override
-	protected void onAnimationEnd() {
-		if (ElevateActivity.DEBUG) Log.d(getClass().getSimpleName(), "onAnimationEnd() "+toString());
+	protected void onAnimationEnd()
+	{
+		if (ElevateActivity.DEBUG) Log.v(getClass().getSimpleName(), "onAnimationEnd() " + this);
 		exchangeCustomers();
-		if (null != callback) {
-			callback.onElevatorArived(this);
+		if (null != arrivedCallback)
+		{
+			arrivedCallback.onElevatorArrived(this);
 		}
 		super.onAnimationEnd();
 	}
-
+	
 	/**
-	 * @param floor drive to floor to set
-	 * @param generateNewCustomers generate number of new customers when elevator stops  
+	 * Aufzug animiert zu einer neuen Zieletage bewegen
+	 *
+	 * @param destination anzufahrende Zieletage
 	 */
-	public void driveToFloor(int floor) {
-		int from = 0 - this.floor * ElevateActivity.getScaledHeight(drwElevator);
-		int to = 0 - floor * ElevateActivity.getScaledHeight(drwElevator);
-		if (to <= 0) {
-			if (ElevateActivity.DEBUG) Log.d(getClass().getSimpleName(), "driveToFloor() from: "+from+" to: "+to);
+	public void driveTo(int destination)
+	{
+		int from = 0 - this.position * ElevateActivity.getScaledHeight(drwElevator);
+		int to = 0 - destination * ElevateActivity.getScaledHeight(drwElevator);
+		if (to <= 0)
+		{
+			if (ElevateActivity.DEBUG) Log.d(getClass().getSimpleName(), "driveToFloor() from: " + from + " to: " + to);
 			TranslateAnimation an = new TranslateAnimation(0, 0, from, to);
 			an.setInterpolator(AnimationUtils.loadInterpolator(getContext(),
-					android.R.anim.accelerate_decelerate_interpolator));
-			an.setDuration(Math.abs(this.floor - floor) * 200 + 100);
+															   android.R.anim.accelerate_decelerate_interpolator));
+			an.setDuration(Math.abs(this.position - destination) * 200 + 100);
 			an.setFillAfter(true);
 			setAnimation(an);
+			setY(0);
 			startAnimation(an);
 		}
-		this.floor = floor;
+		this.position = destination;
 	}
-
+	
+	
 	/**
-	 * @param leftSide the leftSide to set
-	 */
-	public void setLeftSide(boolean leftSide) {
-		this.leftSide = leftSide;
-	}
-
-	/**
+	 * zeigt, ob es sich um den linken Aufzug handelt
+	 *
 	 * @return the leftSide
 	 */
-	public boolean isLeftSide() {
-		return leftSide;
+	public boolean isLeftSide()
+	{
+		return isLeft;
 	}
-
+	
 	/**
-	 * @param floors the floors to set
-	 */
-	public void setFloors(Floor[] floors) {
-		this.floors = floors;
-	}
-
-	/**
-	 * @return the floors
-	 */
-	public Floor[] getFloors() {
-		return floors;
-	}
-
-	/* (non-Javadoc)
+	 * (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
-	public String toString() {
-		return "Elevator [floor=" + floor + ", travelers=" + travelers + "]";
+	public String toString()
+	{
+		return "Elevator [floor=" + position + ", travelers=" + travelers + "]";
 	}
-
-
+	
+	
 	/**
-	 * 
+	 * Reisende in der Lobby aufnehmen oder in der Zieletage ausladen
 	 */
-	public void exchangeCustomers() {
-		if (floors[floor].isEntry()) {
+	public void exchangeCustomers()
+	{
+		if (floors[position].isEntry())
+		{
 			// get customers from floor
-			while (travelers.size() < CAPACITY) {
-				Customer c = floors[floor].getWaitingCustomer();
-				if (c == null) {
+			while (travelers.size() < CAPACITY)
+			{
+				Customer c = floors[position].getWaitingCustomer();
+				if (c == null)
+				{
 					break;
 				}
 				travelers.add(c);
 			}
 		}
-		else {
+		else
+		{
 			// put customers to floor
-			floors[floor].clearFloor();
+			floors[position].clearFloor();
 			Iterator<Customer> i = travelers.iterator();
-			while (i.hasNext()) {
-				if (floor == i.next().getFloor()) {
-					floors[floor].addOnePeople();
+			while (i.hasNext())
+			{
+				if (position == i.next().getFloor())
+				{
+					floors[position].addOnePeople();
 					i.remove();
-					success++;
+					countDeliveredCustomers++;
 				}
 			}
 		}
 	}
-
-	/**
-	 * 
-	 */
-	public void genWaitingCustomer() {
-		for (int i=0; i<floors.length; i++) {
-			if (floors[i].isEntry()) {
-				floors[i].addCustomer(new Customer(getContext(), this.isLeftSide() ? LEFT : RIGHT));
-				break;
-			}
-		}
-	}
-
 	
 	/**
-	 * 
+	 * einen neuen wartenden Reisenden generieren
+	 */
+	public void genWaitingCustomer()
+	{
+		entryFloor.addCustomer(new Customer(getContext(), this));
+	}
+	
+	
+	/**
+	 * eine Spielrunde weiter ziehen
+	 *
 	 * @return
 	 */
-	public int timeTick() {
+	public int timeTick()
+	{
 		int maxAge = -1;
-		for(int i = 0; i<floors.length; i++) {
+		for (int i = 0; i < floors.length; i++)
+		{
 			maxAge = Math.max(floors[i].timeTick(), maxAge);
 		}
 		invalidate();
 		return maxAge;
 	}
-
+	
 	/**
-	 * @return the driving
+	 * zeigt ob sicher Aufzug in Bewegung befindet
+	 *
+	 * @return true, wenn in Bewegung (Animation läuft)
 	 */
-	public boolean isDriving() {
+	public boolean isDriving()
+	{
 		Animation an = getAnimation();
 		return an != null && ! an.hasEnded();
 	}
-
+	
 	/**
-	 * @return the success
+	 * liefert die Anzahl der erfolgreich abgelieferten Reisenden
+	 *
+	 * @return Anzahl der erfolgreich abgelieferten Reisenden
 	 */
-	public int getSuccess() {
-		return success;
+	public int getCountDelivered()
+	{
+		return countDeliveredCustomers;
 	}
-
+	
 	/**
-	 * 
+	 * Click-Listener für alle Etagen registrieren
 	 */
-	public void reset() {
-		initialize(null);
-		for (int i = 0; i < floors.length; i++) {
-			floors[i].reset();
+	public void setOnClickListener(View.OnClickListener l)
+	{
+		for (int i = floors.length - 1; i >= 0; i--)
+		{
+			floors[i].setOnClickListener(l);
 		}
 	}
+	
 	/**
+	 *
 	 * @param callback the callback to set
 	 */
-	public void setCallback(Callback callback) {
-		this.callback = callback;
+	public void setArrivedCallback(ArrivedCallback callback)
+	{
+		this.arrivedCallback = callback;
 	}
 	
-	
-	public interface Callback {
-
+	/**
+	 * Interface um sich über ankommende Aufzüge Informieren zu lassen
+	 */
+	public interface ArrivedCallback
+	{
+		
 		/**
+		 * Handler, der über ankommende Aufzüge informiert
 		 * 
-		 * @param elv
+		 * @param elv angekommener Aufzug
 		 */
-		public void onElevatorArived(Elevator elv);
+		public void onElevatorArrived(Elevator elv);
 	}
-
+	
 }

@@ -45,7 +45,7 @@ public class HighscoreFragment extends ListFragment {
 			TextView tvScoreValue = (TextView) mView
 					.findViewById(R.id.tvScoreValue);
 			tvScoreValue.setText(String
-					.valueOf(lastScore > 0 ? lastScore : "-"));
+					.valueOf(lastScore > 0 ? String.valueOf(lastScore) : "-"));
 		}
 		return mView;
 	}
@@ -62,7 +62,7 @@ public class HighscoreFragment extends ListFragment {
 			TextView tvScoreValue = (TextView) getView().findViewById(
 					R.id.tvScoreValue);
 			tvScoreValue.setText(String
-					.valueOf(lastScore > 0 ? lastScore : "-"));
+					.valueOf(lastScore > 0 ? String.valueOf(lastScore) : "-"));
 		}
 	}
 

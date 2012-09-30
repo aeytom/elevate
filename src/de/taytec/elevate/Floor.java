@@ -3,19 +3,14 @@
  */
 package de.taytec.elevate;
 
-import java.util.ArrayList;
-import java.util.ListIterator;
-
-import android.content.Context;
-import android.content.res.TypedArray;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Rect;
-import android.graphics.drawable.AnimationDrawable;
-import android.graphics.drawable.Drawable;
-import android.util.AttributeSet;
-import android.view.View;
+import android.content.*;
+import android.content.res.*;
+import android.graphics.*;
+import android.graphics.drawable.*;
+import android.os.*;
+import android.util.*;
+import android.view.*;
+import java.util.*;
 
 /**
  * @author tay
@@ -23,25 +18,94 @@ import android.view.View;
  */
 public class Floor extends View {
 
+	/**
+	 * Anzahl der Wartezyklen die eine Reisender ruhig abwartet
+	 */
 	public static final int MAXCALM = 2;
+	/**
+	 * Anzahl der Wartezyklen die ein Reisender maximal wartet
+	 */
 	public static final int MAXWAIT = 3;
 	
-	private ArrayList<Runnable> addActions = new ArrayList<Runnable>();
-	protected int animationCounter;
-	private Runnable animator = null;
-	private AnimationDrawable drwUpturn;
-	private AnimationDrawable drwWait;
-	private AnimationDrawable drwWorker;
-	private boolean entry = false;
-	private boolean floorLeft = true;
-	private int floorSurface = 1;
-	private Drawable labelGraphic;
-	private int peopleCount = 0;
-	private Rect posWorker;
-	private ArrayList<Customer> waiting;
-	private int age;
-
+	/*
+	 * --------------------------------------------------------------------------------
+	 * Member Varablen, deren Status bei App-Lifezykluswechseln gesichert werden müssen
+	 * --------------------------------------------------------------------------------
+	 */
+	
 	/**
+	 * Queue der wartenden Reisenden 
+	 */
+	private ArrayList<Customer> customersWaitingQueue;
+	/**
+	 * Taskliste für die Reisenden die gerade den Aufzug verlassen haben
+	 */
+	private ArrayList<Runnable> customersArrivedQueue = new ArrayList<Runnable>();
+	/**
+	 * Anzahl der angekommenen Reisenden in der Etage, wenn es sich nicht um 
+	 * einen Eingang handelt
+	 */
+	private int numberCustomersArrived = 0;
+	/**
+	 * Zeit/Züge die seit der letzten Ankunft von Reisenden
+	 * vergangen ist
+	 */
+	private int elapsedTimeSinceArrival;
+	
+	
+	/*
+	 * --------------------------------------------------------------------------------
+	 * Member-Variablen die unabhängig von den Spielzyklen sind und die daher bei
+	 * einem App-Lifezykluswechsel nicht gesichert und wieder hergestellt werden müssen.
+	 * --------------------------------------------------------------------------------
+	 */
+	
+	/**
+	 * Zustandszähler aller Animationen
+	 */
+	protected int animationFrame;
+	/**
+	 * Task um die Animationen der Reisenden anzuzeigen
+	 */
+	private Runnable animator = null;
+	/**
+	 * Grafik für ungeduldigen Reisenden (nur Eingangsflur)
+	 */
+	private AnimationDrawable drwUpturn;
+	/**
+	 * Grafik für ruhig wartenden Reisenden (nur Eingangsflur)
+	 */
+	private AnimationDrawable drwWait;
+	/**
+	 * Grafik für laufenden Reisenden (nur Ausgangsflur)
+	 */
+	private AnimationDrawable drwWorker;
+	/**
+	 * Marker, ob es sich um einen Eingangsflur handelt
+	 */
+	private boolean isEntry = false;
+	/**
+	 * Marker, ob es sich um einen linken Flur handelt, wichtig für die Laufrichtung 
+	 * der ankommenden Reisenden
+	 */
+	private boolean isLeft = true;
+	/**
+	 * Etage Nummer
+	 */
+	private int surfaceNumber = 1;
+	/**
+	 * Grafik für die etagenbeschriftung
+	 */
+	private Drawable labelGraphic;
+	/**
+	 * Position eines Reisenden für die Darstellung
+	 */
+	private Rect posWorker;
+	
+	
+	/**
+	 * Konstruktor
+	 * 
 	 * @param context
 	 */
 	public Floor(Context context) {
@@ -50,6 +114,8 @@ public class Floor extends View {
 	}
 
 	/**
+	 * Konstruktor
+	 * 
 	 * @param context
 	 * @param attrs
 	 */
@@ -59,6 +125,8 @@ public class Floor extends View {
 	}
 
 	/**
+	 * Konstruktor
+	 * 
 	 * @param context
 	 * @param attrs
 	 * @param defStyle
@@ -69,72 +137,84 @@ public class Floor extends View {
 	}
 
 	/**
+	 * Einen neuen wartenden Reisenden dem Flur hinzufügen
 	 * 
-	 * @param customer
+	 * @param customer einen neuen wartenden Reisenden für den Eingang
 	 */
 	public void addCustomer(Customer customer) {
-		if (waiting != null) {
-			waiting.add(customer);
+		if (customersWaitingQueue != null) {
+			customersWaitingQueue.add(customer);
 		}
 	}
 
 	/**
+	 * einen ankommenden Reisenden hinzufügen/ausladen
 	 * 
+	 * Die Animation für das Erscheinen des Reisenden wird mit einer mit der Anzahl 
+	 * bereits angegekommenen Reisenden wachsenden Verzögerung gestartet.
 	 */
 	public void addOnePeople() {
 		Runnable action = new Runnable() {
 			@Override
 			public void run() {
-				setPeopleCount(getPeopleCount() + 1);
+				setPeopleCount(getNumberOfCustomersArrived() + 1);
 				invalidate();				
 			}
 		};
-		addActions.add(action);
-		postDelayed(action, addActions.size() * 400);
+		customersArrivedQueue.add(action);
+		postDelayed(action, customersArrivedQueue.size() * 400);
 	}
 
 	/**
+	 * Löscht alle angekommenen Reisenden vom Flur
 	 * 
+	 * Alle Animationen werden beendet
 	 */
 	public void clearFloor() {
 		setPeopleCount(0);
-		for (int i = 0; i < addActions.size(); i++) {
-			removeCallbacks(addActions.get(i));
+		for (int i = 0; i < customersArrivedQueue.size(); i++) {
+			removeCallbacks(customersArrivedQueue.get(i));
 		}
-		addActions.clear();
-		age = 0;
+		customersArrivedQueue.clear();
+		elapsedTimeSinceArrival = 0;
 		invalidate();
 	}
 
 	/**
-	 * @return the floorSurface
-	 */
-	public int getFloorSurface() {
-		return floorSurface;
-	}
-	
-	/**
-	 * @return the peopleCount
-	 */
-	public int getPeopleCount() {
-		return peopleCount;
-	}
-	
-	/**
-	 * get one waiting customer from waiting queue
+	 * Liefert die Etagen-Nummer
 	 * 
-	 * @return customer or null on empty queue
+	 * @return Etagen Nummer 
+	 */
+	public int getSurfaceNumber() {
+		return surfaceNumber;
+	}
+	
+	/**
+	 * Liefert die Anzahl der Reisenden, die auf der Etage aktuell eingetroffen sind
+	 * 
+	 * @return Anzahl der angekommenen Reisenden
+	 */
+	public int getNumberOfCustomersArrived() {
+		return numberCustomersArrived;
+	}
+	
+	/**
+	 * Gibt einen Kunden aus der Warteschlange zurück und verkürzt die
+	 * Warteschlange 
+	 * 
+	 * @return ein wartender Reisender oder null
 	 */
 	public Customer getWaitingCustomer() {
 		Customer customer = null;
-		if (waiting.size() > 0) {
-			customer  = waiting.get(0);
-			waiting.remove(0);
+		if (customersWaitingQueue != null && customersWaitingQueue.size() > 0) {
+			customer  = customersWaitingQueue.get(0);
+			customersWaitingQueue.remove(0);
 		}
 		return customer;
 	}
 
 	/**
+	 * Allgemeine Initialisierung der Instanz
 	 * 
 	 * @param context 
 	 * @param attrs
@@ -154,32 +234,47 @@ public class Floor extends View {
 		clearFloor();
 		
 		if (isEntry()) {
-			waiting = new ArrayList<Customer>();
-		}
-		
-		if (isEntry()) {
-			drwWorker = (AnimationDrawable) getResources().getDrawable(isFloorLeft() ? R.drawable.rwalk : R.drawable.lwalk);
+			// Queue der wartenden Reisenden initialisieren
+			customersWaitingQueue = new ArrayList<Customer>();
+			// Grafik der ruhig wartenden Reisenden initialisieren
 			drwWait = (AnimationDrawable) getResources().getDrawable(R.drawable.wait);
 			drwWait.setBounds(
-					0, ElevateActivity.getScaledHeight(labelGraphic), 
-					ElevateActivity.getScaledWidth(drwWait), ElevateActivity.getScaledHeight(labelGraphic) + ElevateActivity.getScaledHeight(drwWait));
+					0, 
+					ElevateActivity.getScaledHeight(labelGraphic), 
+					ElevateActivity.getScaledWidth(drwWait), 
+					ElevateActivity.getScaledHeight(labelGraphic) + ElevateActivity.getScaledHeight(drwWait));
+			// Grafik der wütenden wartenden Reisenden initialieren
 			drwUpturn = (AnimationDrawable) getResources().getDrawable(R.drawable.upturn);
 			drwUpturn.setBounds(
-					0, ElevateActivity.getScaledHeight(labelGraphic), 
-					ElevateActivity.getScaledWidth(drwUpturn), ElevateActivity.getScaledHeight(labelGraphic) + ElevateActivity.getScaledHeight(drwUpturn));			
+					0, 
+					ElevateActivity.getScaledHeight(labelGraphic), 
+					ElevateActivity.getScaledWidth(drwUpturn), 
+					ElevateActivity.getScaledHeight(labelGraphic) + ElevateActivity.getScaledHeight(drwUpturn));
+			// Grafik der gerade angekommenden Reisenden initilisieren			
+			drwWorker = (AnimationDrawable) getResources().getDrawable(
+				isLeft() 
+					? R.drawable.rwalk 
+					: R.drawable.lwalk);
 		}
 		else {
-			drwWorker = (AnimationDrawable) getResources().getDrawable(isFloorLeft() ? R.drawable.lwalk : R.drawable.rwalk);
+			// Grafik der Reisenden, die erfolgreich ihr Ziel erreicht haben  
+			drwWorker = (AnimationDrawable) getResources().getDrawable(
+				isLeft() 
+					? R.drawable.lwalk 
+					: R.drawable.rwalk);
 		}
+
 		drwWorker.setBounds(
-				0, ElevateActivity.getScaledHeight(labelGraphic), 
-				ElevateActivity.getScaledWidth(drwWorker), ElevateActivity.getScaledHeight(labelGraphic) + ElevateActivity.getScaledHeight(drwWorker));
+			0, 
+			ElevateActivity.getScaledHeight(labelGraphic), 
+			ElevateActivity.getScaledWidth(drwWorker), 
+			ElevateActivity.getScaledHeight(labelGraphic) + ElevateActivity.getScaledHeight(drwWorker));
 		posWorker = drwWorker.copyBounds();
 		
 		if (null == animator) {
 			animator = new Runnable() {
 				public void run() {
-					animationCounter ++;
+					animationFrame ++;
 					invalidate();
 					postDelayed(this, 100);
 				}
@@ -189,17 +284,23 @@ public class Floor extends View {
 	}
 
 	/**
-	 * @return the entry
+	 * Bestimmt ob der Flur ein Eingang ist
+	 * 
+	 * @return true, wenn der Flur ein Eingang ist
 	 */
 	public boolean isEntry() {
-		return entry;
+		return isEntry;
 	}
 
 	/**
-	 * @return the floorLeft
+	 * Bestimmt ob es sich um einen linken Flur handelt
+	 * 
+	 * Das ist wichtig für die Laufrichtung der Reisenden
+	 * 
+	 * @return true, wenn es sich um einen linken Flur handelt
 	 */
-	public boolean isFloorLeft() {
-		return floorLeft;
+	public boolean isLeft() {
+		return isLeft;
 	}
 
 	/**
@@ -223,25 +324,25 @@ public class Floor extends View {
 		Drawable walker;
 		drwWorker.copyBounds(posWorker);
 		int offset;
-		if (isFloorLeft()) {
+		if (isLeft()) {
 			posWorker.offsetTo(width - ElevateActivity.getScaledWidth(drwWorker), posWorker.top);
 			offset = 0 - ElevateActivity.getScaledWidth(drwWorker);
 		} else {
 			offset = ElevateActivity.getScaledWidth(drwWorker);
 		}
 		if (isEntry()) {
-			ListIterator<Customer> i = waiting.listIterator();
+			ListIterator<Customer> i = customersWaitingQueue.listIterator();
 			while (i.hasNext()) {
 				Customer customer = i.next();
 				int age = customer.getAge();
 				if (age > MAXWAIT) {
-					walker = drwUpturn.getFrame(animationCounter % drwUpturn.getNumberOfFrames());
+					walker = drwUpturn.getFrame(animationFrame % drwUpturn.getNumberOfFrames());
 				}
 				else if (age > MAXCALM) {
-					walker = drwWait.getFrame(animationCounter % drwWait.getNumberOfFrames());
+					walker = drwWait.getFrame(animationFrame % drwWait.getNumberOfFrames());
 				}
 				else {
-					walker = drwWorker.getFrame(animationCounter % drwWorker.getNumberOfFrames());
+					walker = drwWorker.getFrame(animationFrame % drwWorker.getNumberOfFrames());
 
 				}
 				posWorker.right = posWorker.left + ElevateActivity.getScaledWidth(walker);
@@ -259,10 +360,10 @@ public class Floor extends View {
 			}
 		}
 		else {
-			walker = drwWorker.getFrame(animationCounter % drwWorker.getNumberOfFrames());
-			for (int i = getPeopleCount(); i > 0; i--) {
+			walker = drwWorker.getFrame(animationFrame % drwWorker.getNumberOfFrames());
+			for (int i = getNumberOfCustomersArrived(); i > 0; i--) {
 				walker.setBounds(posWorker);
-				walker.setAlpha(Math.max(0,255 - 85 * Math.max(0,age-1)));
+				walker.setAlpha(Math.max(0,255 - 85 * Math.max(0,elapsedTimeSinceArrival-1)));
 				walker.draw(canvas);
 				posWorker.offset(offset, 0);
 			}
@@ -316,18 +417,22 @@ public class Floor extends View {
 
 
 	/**
-	 * @param entry the entry to set
+	 * Legt fest ob der Flur als Eingang oder Ausgang arbeitet
+	 * 
+	 * @param entry true, wenn es sich um einen Eingang handeln soll
 	 */
 	public void setEntry(boolean entry) {
-		this.entry = entry;
+		this.isEntry = entry;
 	}
 
 	/**
-	 * @param floorLeft
-	 *            the floorLeft to set
+	 * Legt fest ob sich der Flur auf der linken oder der rechten
+	 * Seite befindet.
+	 * 
+	 * @param floorLeft true, wenn es sich um einen linken Flur handelt
 	 */
 	public void setFloorLeft(boolean floorLeft) {
-		this.floorLeft = floorLeft;
+		this.isLeft = floorLeft;
 	}
 
 	/**
@@ -335,7 +440,7 @@ public class Floor extends View {
 	 *            the floorSurface to set
 	 */
 	public void setFloorSurface(int floorSurface) {
-		this.floorSurface = floorSurface;
+		this.surfaceNumber = floorSurface;
 	}
 
 	/**
@@ -343,7 +448,7 @@ public class Floor extends View {
 	 *            the peopleCount to set
 	 */
 	public void setPeopleCount(int peopleCount) {
-		this.peopleCount = peopleCount;
+		this.numberCustomersArrived = peopleCount;
 	}
 
 	/* (non-Javadoc)
@@ -352,27 +457,31 @@ public class Floor extends View {
 	@Override
 	public String toString() {
 		if (isEntry()) {
-			return "Floor [floorLeft=" + floorLeft + ", floorSurface=" + floorSurface+ ", wating=" + waiting + "]";
+			return "Floor [left=" + isLeft + ", floorSurface=" + surfaceNumber + ", waiting=" + customersWaitingQueue + "]";
 		}
 		else {
-			return "Floor [floorLeft=" + floorLeft + ", peopleCount=" + peopleCount	+ ", floorSurface=" + floorSurface + ", age=" + age + "]";
+			return "Floor [left=" + isLeft	+ ", floorSurface=" + surfaceNumber + ", arrivied=" + numberCustomersArrived + ", age=" + elapsedTimeSinceArrival + "]";
 		}
 	}
 
 	/**
-	 * @return 
+	 * Eine Zeiteinheit weiterzählen 
 	 * 
+	 * Ist der Flur ein Eingang wird die Wartezeit des am längsten Wartenden
+	 * zurückgegeben. In allen anderen Fällen ist das Ergebnis -1
+	 * 
+	 * @return Wartezeit des ältesten Wartenden
 	 */
 	public int timeTick() {
 		int maxAge = -1;
 		if (isEntry()) {
-			ListIterator<Customer> i = waiting.listIterator();
+			ListIterator<Customer> i = customersWaitingQueue.listIterator();
 			while (i.hasNext()) {
 				maxAge = Math.max(i.next().timeTick(), maxAge);
 			}
 		}
 		else {
-			age ++;
+			elapsedTimeSinceArrival ++;
 		}
 //		if (ElevateActivity.DEBUG) Log.d("Elvate:Floor", toString());
 		return maxAge;
@@ -385,5 +494,44 @@ public class Floor extends View {
 		initialize(null);
 	}
 
+	/**
+	 *
+	 */
+	protected Bundle toBundle() {
+		if (ElevateActivity.DEBUG) Log.v(getClass().getSimpleName(), "toBundle()");
+		Bundle out = new Bundle();
+		if (isEntry()) {
+			Bundle[] cl = new Bundle[customersWaitingQueue.size()];
+			for (int i = customersWaitingQueue.size() - 1; i>=0; i--) {
+				cl[i] = customersWaitingQueue.get(i).toBundle();
+			}
+			out.putParcelableArray("waiting", cl);
+		}
+		else {
+			out.putInt("arrived", numberCustomersArrived);
+			out.putInt("elapsed", elapsedTimeSinceArrival);		
+		}
+		return out;
+	}
+
+	/**
+	 *
+	 */
+	public void fromBundle(Elevator elevator, Bundle state) {
+		if (ElevateActivity.DEBUG) Log.v(getClass().getSimpleName(), "fromBundle()");
+		clearFloor();
+		if (state.containsKey("arrived")) {
+			setPeopleCount(state.getInt("arrived"));
+			elapsedTimeSinceArrival = state.getInt("elapsed");
+		}
+		else {
+			Bundle[] cl = (Bundle[]) state.getParcelableArray("waiting");
+			for (int i = 0; i < cl.length; i++) {
+				Customer c = new Customer(getContext(), elevator, cl[i]);
+				customersWaitingQueue.add(c);
+			}
+			
+		}
+	}
 	
 }

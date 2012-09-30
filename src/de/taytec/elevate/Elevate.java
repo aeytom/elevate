@@ -10,24 +10,9 @@ import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-public class Elevate extends Fragment implements OnClickListener, Elevator.Callback {
+public class Elevate extends Fragment implements OnClickListener, Elevator.ArrivedCallback {
 	
-	public static final int FLOORS = 4;
 	public static final int SPEED = 10;
-
-	private static int[] leftFloorId = {
-			R.id.svLeftEntry,
-			R.id.svLeftFloor2,
-			R.id.svLeftFloor3,
-			R.id.svLeftFloor4
-	};
-	
-	private static int[] rightFloorId = {
-			R.id.svRightEntry,
-			R.id.svRightFloor2,
-			R.id.svRightFloor3,
-			R.id.svRightFloor4
-	};
 	
 	private Elevator leftElevator;
 	private Elevator rightElevator;
@@ -45,49 +30,65 @@ public class Elevate extends Fragment implements OnClickListener, Elevator.Callb
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		
-		if (ElevateActivity.DEBUG) Log.d(getClass().getSimpleName(), "onCreateView()");
-		
 		if (null != mView && mView.getParent() instanceof ViewGroup) {
+			if (ElevateActivity.DEBUG) Log.d(getClass().getSimpleName(), "onCreateView() - recycled");
 			((ViewGroup)mView.getParent()).removeView(mView);
 		}
 		else {
+			if (ElevateActivity.DEBUG) Log.d(getClass().getSimpleName(), "onCreateView() - new");
 			mView = inflater.inflate(R.layout.elevate, container, false);
-		//		view.setScaleX(ElevateActivity.getScaleFactor());
-		//		view.setScaleY(ElevateActivity.getScaleFactor());
 		            
 		    progressLevel = (ProgressBar) mView.findViewById(R.id.pbLevel);
 		    progressLevel.getProgressDrawable();
 		    getResources().getDrawable(R.drawable.progress_horizontal);
 		    tvNewCustomers = (TextView) mView.findViewById(R.id.tvNewCustomers);
 		    
-			Floor[] leftFloors = new Floor[FLOORS];
-			Floor[] rightFloors = new Floor[FLOORS];
-		    for (int i = 0; i < FLOORS; i++) {
-		    	Floor f = (Floor) mView.findViewById(leftFloorId[i]);
-		    	f.setOnClickListener(this);
-		    	leftFloors[i] = f;
-		    	f = (Floor) mView.findViewById(rightFloorId[i]);
-		    	f.setOnClickListener((android.view.View.OnClickListener) this);
-		    	rightFloors[i] = f;
-		    }
-		    
 		    leftElevator = (Elevator) mView.findViewById(R.id.leftElevator);
-		    leftElevator.setFloors(leftFloors);
-		    leftElevator.setCallback(this);
+			leftElevator.setupFloors(mView);
+			leftElevator.setOnClickListener(this);
+		    leftElevator.setArrivedCallback(this);
 		    
 		    rightElevator = (Elevator) mView.findViewById(R.id.rightElevator);
-		    rightElevator.setFloors(rightFloors);
-		    rightElevator.setCallback(this);
-		    
-		    startGame();
+			rightElevator.setupFloors(mView);
+			rightElevator.setOnClickListener(this);
+		    rightElevator.setArrivedCallback(this);
 		}
+		
+		if (savedInstanceState != null && savedInstanceState.containsKey("move")) {
+			if (ElevateActivity.DEBUG) Log.v(getClass().getSimpleName(), "onCreateView() - restore state");
+			gameMove = savedInstanceState.getInt("move");
+			leftElevator.fromBundle(savedInstanceState.getBundle("leftElevator"));
+			rightElevator.fromBundle(savedInstanceState.getBundle("rightElevator"));
+		}
+		else {
+			startGame();
+		}
+		
         return mView;
     }
     
  
 
+	/* (non-Javadoc)
+	 * @see android.support.v4.app.Fragment#onSaveInstanceState(android.os.Bundle)
+	 */
+	@Override
+	public void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		if (ElevateActivity.DEBUG) Log.v(getClass().getSimpleName(), "onSaveInstanceState()");
+		outState.putInt("move", gameMove);
+		setProgress();
+		outState.putBundle("leftElevator", leftElevator.toBundle());
+		outState.putBundle("rightElevator", rightElevator.toBundle());
+	}
+
+	
+	
+
 	/**
-	 * 
+	 * behandelt Click/Touch-Events auf die Etagen
+	 *
+	 * @param v Angeklickter View, sollte ein 'Floor' sein
 	 */
 	@Override
 	public void onClick(View v) {
@@ -96,25 +97,23 @@ public class Elevate extends Fragment implements OnClickListener, Elevator.Callb
 				return;
 			}
 
-			if (ElevateActivity.DEBUG) Log.d(getClass().getSimpleName(), "onclick()");
-			
 			Floor f = (Floor) v;
-			if (ElevateActivity.DEBUG) Log.d(getClass().getSimpleName(), "click: "+f);
-			int ls;
-			int rs;
-			if (f.isFloorLeft()) {
-				ls = f.getFloorSurface() - 1;
-				rs = FLOORS - ls - 1;
+			if (ElevateActivity.DEBUG) Log.d(getClass().getSimpleName(), "onClick: "+f);
+
+			int ls, rs;
+			if (f.isLeft()) {
+				ls = f.getSurfaceNumber() - 1;
+				rs = Elevator.FLOORS - ls - 1;
 			}
 			else {
-				rs = f.getFloorSurface() - 1;
-				ls = FLOORS - rs - 1;
+				rs = f.getSurfaceNumber() - 1;
+				ls = Elevator.FLOORS - rs - 1;
 			}
 			
 			gameMove ++;		
 			genCustomer(gameMove / SPEED + 1);
-			leftElevator.driveToFloor(ls);
-			rightElevator.driveToFloor(rs);			
+			leftElevator.driveTo(ls);
+			rightElevator.driveTo(rs);			
 		}
 	}
 
@@ -123,13 +122,12 @@ public class Elevate extends Fragment implements OnClickListener, Elevator.Callb
 	 * 
 	 */
 	@Override
-	public void onElevatorArived(Elevator elv) {
+	public void onElevatorArrived(Elevator elv) {
 		int maxAge = elv.timeTick();
 		if (ElevateActivity.DEBUG) Log.d(getClass().getSimpleName(), "maxAge="+maxAge);
-		// show game over warning
-		setProgress(maxAge > Floor.MAXWAIT);	
+		setProgress();	
 
-		int success = leftElevator.getSuccess() + rightElevator.getSuccess();
+		int success = leftElevator.getCountDelivered() + rightElevator.getCountDelivered();
 		if (gameMove > 0) {
 			score = Math.max(0,(111 * success / gameMove) + (gameMove * 122) - 500);
 		}
@@ -166,14 +164,14 @@ public class Elevate extends Fragment implements OnClickListener, Elevator.Callb
 	 */
 	public void startGame()
 	{
-		if (ElevateActivity.DEBUG) Log.d(getClass().getSimpleName(), "starGame()");
+		if (ElevateActivity.DEBUG) Log.d(getClass().getSimpleName(), "startGame()");
 		gameMove = 0;
 		score = 0;
-		setProgress(false);
+		setProgress();
 		leftElevator.reset();
 		rightElevator.reset();
-        leftElevator.driveToFloor(2);
-        rightElevator.driveToFloor(1);
+        leftElevator.driveTo(2);
+        rightElevator.driveTo(1);
         genCustomer(4);
 	}
 
@@ -181,7 +179,7 @@ public class Elevate extends Fragment implements OnClickListener, Elevator.Callb
 	/**
 	 * 
 	 */
-	public void setProgress(boolean warn) {
+	public void setProgress() {
 		progressLevel.setProgress(gameMove);
 		tvNewCustomers.setText(getResources().getString(R.string.new_customers)+(1+gameMove/SPEED));
 	}
